@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-black text-white select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caffeinated</title>
+    
+    <!-- Twitter Coffee Emoji Favicon -->
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2615.svg" type="image/svg+xml">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        .btn-option {
+            background-color: #000000;
+            color: #a3a3a3;
+            border: 1px solid #262626;
+        }
+        .btn-option:hover {
+            color: #ffffff;
+            border-color: #737373;
+        }
+        .btn-option.active {
+            background-color: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+        .twemoji {
+            display: inline-block;
+            vertical-align: middle;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="h-full bg-black text-white font-mono flex flex-col justify-between items-center p-6">
+
+    <!-- Top Bar -->
+    <header class="w-full max-w-sm flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2615.svg" alt="coffee" class="twemoji w-6 h-6">
+            <span class="text-sm tracking-tight text-white font-bold">caffeinated</span>
+        </div>
+        
+        <!-- Screen Awake Status Indicator -->
+        <div class="flex items-center gap-2 text-xs text-neutral-400">
+            <img id="statusIcon" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2600.svg" alt="status" class="twemoji w-4 h-4 opacity-40 transition-opacity">
+            <span id="statusText">idle</span>
+        </div>
+    </header>
+
+    <!-- Main Section -->
+    <main class="w-full max-w-sm flex flex-col items-center my-auto py-8">
+        
+        <!-- Digital Timer Display -->
+        <div id="timerDisplay" class="text-7xl sm:text-8xl font-light tracking-tighter text-white mb-6">
+            ∞
+        </div>
+
+        <!-- Timer Controls: Play / Pause / Reset -->
+        <div class="flex items-center gap-4 mb-8">
+            <button id="playPauseBtn" title="toggle timer" class="w-14 h-14 rounded-full bg-white text-black hover:bg-neutral-200 flex items-center justify-center transition-transform active:scale-95">
+                <img id="playPauseImg" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/23f8.svg" alt="pause" class="twemoji w-6 h-6">
+            </button>
+            <button id="resetBtn" title="reset" class="w-14 h-14 rounded-full border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-500 flex items-center justify-center transition-transform active:scale-95">
+                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f504.svg" alt="reset" class="twemoji w-5 h-5">
+            </button>
+        </div>
+
+        <!-- Presets Row -->
+        <div class="w-full grid grid-cols-5 gap-2 text-xs mb-3">
+            <button data-mins="30" class="btn-option py-2.5 rounded-md transition-colors">30m</button>
+            <button data-mins="60" class="btn-option py-2.5 rounded-md transition-colors">1h</button>
+            <button data-mins="120" class="btn-option py-2.5 rounded-md transition-colors">2h</button>
+            <button id="customToggleBtn" class="btn-option py-2.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2699.svg" alt="custom" class="twemoji w-3.5 h-3.5">
+            </button>
+            <button data-mins="infinite" id="infiniteBtn" class="btn-option active py-2.5 rounded-md transition-colors">∞</button>
+        </div>
+
+        <!-- Inline Custom Minutes Input Bar -->
+        <div id="customInputBar" class="hidden w-full flex gap-2">
+            <input type="number" id="customMinsInput" min="1" max="1440" placeholder="enter minutes..." class="w-full px-3 py-2 bg-black border border-neutral-800 rounded-md text-white text-xs focus:outline-none focus:border-white">
+            <button id="setCustomBtn" class="px-4 py-2 bg-white text-black text-xs rounded-md hover:bg-neutral-200 transition-colors flex items-center justify-center">
+                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2714.svg" alt="confirm" class="twemoji w-3.5 h-3.5">
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-[11px] text-neutral-600">
+        keeps screen awake while in foreground
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        let wakeLock = null;
+        let timerInterval = null;
+        let remainingSeconds = 0;
+        let totalSeconds = 0;
+        let isRunning = false;
+        let isInfinite = true;
+
+        const TWEMOJI_PLAY = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/25b6.svg";
+        const TWEMOJI_PAUSE = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/23f8.svg";
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playPauseImg = document.getElementById('playPauseImg');
+        const resetBtn = document.getElementById('resetBtn');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusText = document.getElementById('statusText');
+        const optionBtns = document.querySelectorAll('.btn-option');
+        const customToggleBtn = document.getElementById('customToggleBtn');
+        const customInputBar = document.getElementById('customInputBar');
+        const customMinsInput = document.getElementById('customMinsInput');
+        const setCustomBtn = document.getElementById('setCustomBtn');
+
+        // Toggle Play/Pause Twemoji SVG
+        function updatePlayPauseIcon(playing) {
+            playPauseImg.src = playing ? TWEMOJI_PAUSE : TWEMOJI_PLAY;
+            playPauseImg.alt = playing ? "pause" : "play";
+        }
+
+        // Screen Wake Lock API Management
+        async function requestWakeLock() {
+            if (!('wakeLock' in navigator)) {
+                statusText.textContent = 'unsupported';
+                return;
+            }
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                updateStatus(true);
+                wakeLock.addEventListener('release', () => updateStatus(false));
+            } catch (err) {
+                updateStatus(false);
+            }
+        }
+
+        async function releaseWakeLock() {
+            if (wakeLock) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                } catch (e) {}
+            }
+            updateStatus(false);
+        }
+
+        // Re-acquire wake lock on visibility restore
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible' && isRunning) {
+                await requestWakeLock();
+            }
+        });
+
+        function updateStatus(active) {
+            if (active) {
+                statusIcon.classList.remove('opacity-40');
+                statusIcon.classList.add('opacity-100');
+                statusText.textContent = 'awake';
+            } else {
+                statusIcon.classList.remove('opacity-100');
+                statusIcon.classList.add('opacity-40');
+                statusText.textContent = 'idle';
+            }
+        }
+
+        function formatTime(secs) {
+            const h = Math.floor(secs / 3600);
+            const m = Math.floor((secs % 3600) / 60);
+            const s = secs % 60;
+            const pad = n => String(n).padStart(2, '0');
+            return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+        }
+
+        function updateDisplay() {
+            const formatted = isInfinite ? '∞' : formatTime(remainingSeconds);
+            timerDisplay.textContent = formatted;
+            document.title = isRunning ? `${formatted} - Caffeinated` : 'Caffeinated';
+        }
+
+        function setActiveButton(targetBtn) {
+            optionBtns.forEach(b => b.classList.remove('active'));
+            if (targetBtn) targetBtn.classList.add('active');
+        }
+
+        function start() {
+            isRunning = true;
+            requestWakeLock();
+            updatePlayPauseIcon(true);
+
+            if (!isInfinite) {
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    if (remainingSeconds > 0) {
+                        remainingSeconds--;
+                        updateDisplay();
+                    } else {
+                        pause();
+                    }
+                }, 1000);
+            } else {
+                updateDisplay();
+            }
+        }
+
+        function pause() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            releaseWakeLock();
+            updatePlayPauseIcon(false);
+            updateDisplay();
+        }
+
+        function setTimer(minutes, targetBtn) {
+            customInputBar.classList.add('hidden');
+            if (minutes === 'infinite') {
+                isInfinite = true;
+                totalSeconds = 0;
+                remainingSeconds = 0;
+            } else {
+                isInfinite = false;
+                totalSeconds = minutes * 60;
+                remainingSeconds = totalSeconds;
+            }
+            setActiveButton(targetBtn);
+            updateDisplay();
+            start();
+        }
+
+        // Preset buttons click handlers
+        optionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (btn === customToggleBtn) {
+                    customInputBar.classList.toggle('hidden');
+                    if (!customInputBar.classList.contains('hidden')) {
+                        customMinsInput.focus();
+                    }
+                    return;
+                }
+                const mins = btn.getAttribute('data-mins');
+                setTimer(mins === 'infinite' ? 'infinite' : parseInt(mins, 10), btn);
+            });
+        });
+
+        // Custom minutes confirm
+        setCustomBtn.addEventListener('click', () => {
+            const val = parseInt(customMinsInput.value, 10);
+            if (val && val > 0) {
+                setTimer(val, customToggleBtn);
+                customMinsInput.value = '';
+            }
+        });
+
+        customMinsInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') setCustomBtn.click();
+        });
+
+        // Controls
+        playPauseBtn.addEventListener('click', () => {
+            if (isRunning) pause();
+            else start();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (isInfinite) {
+                start();
+            } else {
+                remainingSeconds = totalSeconds;
+                updateDisplay();
+                start();
+            }
+        });
+
+        // Start infinite keep-awake mode automatically on load
+        start();
+    </script>
+</body>
+</html>
