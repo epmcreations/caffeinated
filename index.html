@@ -2,12 +2,22 @@
 <html lang="en" class="h-full bg-black text-white select-none">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Caffeinated</title>
     
-    <!-- Twitter Coffee Emoji Favicon -->
+    <!-- iOS / Mobile Web App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Caffeinated">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Twitter Coffee Emoji Favicon & Apple Touch Icon -->
     <link rel="icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2615.svg" type="image/svg+xml">
-    
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/2615.png">
+
+    <!-- Web App Manifest (Embedded Data URI) -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Caffeinated%22%2C%22short_name%22%3A%22Caffeinated%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ftwitter%2Ftwemoji%4014.0.2%2Fassets%2F72x72%2F2615.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ftwitter%2Ftwemoji%4014.0.2%2Fassets%2F72x72%2F2615.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -47,10 +57,17 @@
             <span class="text-sm tracking-tight text-white font-bold">caffeinated</span>
         </div>
         
-        <!-- Screen Awake Status Indicator -->
-        <div class="flex items-center gap-2 text-xs text-neutral-400">
-            <img id="statusIcon" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2600.svg" alt="status" class="twemoji w-4 h-4 opacity-40 transition-opacity">
-            <span id="statusText">idle</span>
+        <div class="flex items-center gap-3">
+            <!-- PWA Install Button (Appears if installable) -->
+            <button id="installBtn" class="hidden text-xs bg-white text-black px-2.5 py-1 rounded hover:bg-neutral-200 transition-colors font-sans font-medium">
+                install
+            </button>
+
+            <!-- Screen Awake Status Indicator -->
+            <div class="flex items-center gap-1.5 text-xs text-neutral-400">
+                <img id="statusIcon" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2600.svg" alt="status" class="twemoji w-4 h-4 opacity-40 transition-opacity">
+                <span id="statusText">idle</span>
+            </div>
         </div>
     </header>
 
@@ -75,12 +92,12 @@
         <!-- Presets Row -->
         <div class="w-full grid grid-cols-5 gap-2 text-xs mb-3">
             <button data-mins="30" class="btn-option py-2.5 rounded-md transition-colors">30m</button>
-            <button data-mins="60" class="btn-option py-2.5 rounded-md transition-colors">1h</button>
-            <button data-mins="120" class="btn-option py-2.5 rounded-md transition-colors">2h</button>
+            <button data-mins="60" class="btn-option py-2.5 rounded-md transition-colors">1hr</button>
+            <button data-mins="120" class="btn-option py-2.5 rounded-md transition-colors">2hr</button>
             <button id="customToggleBtn" class="btn-option py-2.5 rounded-md flex items-center justify-center gap-1 transition-colors">
                 <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2699.svg" alt="custom" class="twemoji w-3.5 h-3.5">
             </button>
-            <button data-mins="infinite" id="infiniteBtn" class="btn-option active py-2.5 rounded-md transition-colors">∞</button>
+            <button data-mins="infinite" id="infiniteBtn" class="btn-option active py-2.5 rounded-md transition-colors">Inf</button>
         </div>
 
         <!-- Inline Custom Minutes Input Bar -->
@@ -98,7 +115,57 @@
         keeps screen awake while in foreground
     </footer>
 
-    <!-- Logic Script -->
+    <!-- Service Worker Registration & PWA Logic -->
+    <script>
+        // 1. Inline Service Worker Registration via Blob URL
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'caffeinated-v1';
+                self.addEventListener('install', (e) => {
+                    self.skipWaiting();
+                });
+                self.addEventListener('activate', (e) => {
+                    e.waitUntil(clients.claim());
+                });
+                self.addEventListener('fetch', (e) => {
+                    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                });
+            `;
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration error:', err));
+            });
+        }
+
+        // 2. Native PWA Install Prompt Handler
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.classList.add('hidden');
+            }
+            deferredPrompt = null;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBtn.classList.add('hidden');
+            deferredPrompt = null;
+        });
+    </script>
+
+    <!-- Timer & Screen Wake Lock Logic Script -->
     <script>
         let wakeLock = null;
         let timerInterval = null;
@@ -122,13 +189,11 @@
         const customMinsInput = document.getElementById('customMinsInput');
         const setCustomBtn = document.getElementById('setCustomBtn');
 
-        // Toggle Play/Pause Twemoji SVG
         function updatePlayPauseIcon(playing) {
             playPauseImg.src = playing ? TWEMOJI_PAUSE : TWEMOJI_PLAY;
             playPauseImg.alt = playing ? "pause" : "play";
         }
 
-        // Screen Wake Lock API Management
         async function requestWakeLock() {
             if (!('wakeLock' in navigator)) {
                 statusText.textContent = 'unsupported';
@@ -153,7 +218,6 @@
             updateStatus(false);
         }
 
-        // Re-acquire wake lock on visibility restore
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible' && isRunning) {
                 await requestWakeLock();
@@ -235,7 +299,6 @@
             start();
         }
 
-        // Preset buttons click handlers
         optionBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (btn === customToggleBtn) {
@@ -250,7 +313,6 @@
             });
         });
 
-        // Custom minutes confirm
         setCustomBtn.addEventListener('click', () => {
             const val = parseInt(customMinsInput.value, 10);
             if (val && val > 0) {
@@ -263,7 +325,6 @@
             if (e.key === 'Enter') setCustomBtn.click();
         });
 
-        // Controls
         playPauseBtn.addEventListener('click', () => {
             if (isRunning) pause();
             else start();
@@ -279,7 +340,6 @@
             }
         });
 
-        // Start infinite keep-awake mode automatically on load
         start();
     </script>
 </body>
