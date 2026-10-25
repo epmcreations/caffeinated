@@ -1,346 +1,585 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-black text-white select-none">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Caffeinated</title>
-    
-    <!-- iOS / Mobile Web App Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Caffeinated">
-    <meta name="theme-color" content="#000000">
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>caffeinated</title>
+    <meta name="description" content="Keep your screen awake." />
+    <meta name="theme-color" content="#000000" />
 
-    <!-- Twitter Coffee Emoji Favicon & Apple Touch Icon -->
-    <link rel="icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2615.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/2615.png">
+    <!-- Apple & PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="caffeinated" />
 
-    <!-- Web App Manifest (Embedded Data URI) -->
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Caffeinated%22%2C%22short_name%22%3A%22Caffeinated%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ftwitter%2Ftwemoji%4014.0.2%2Fassets%2F72x72%2F2615.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ftwitter%2Ftwemoji%4014.0.2%2Fassets%2F72x72%2F2615.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <!-- Google Fonts: Montserrat (Bold & Soft) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Favicon using Twitter Coffee Emoji Vector -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2615.svg"
+    />
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        ::-webkit-scrollbar { display: none; }
-        * { -ms-overflow-style: none; scrollbar-width: none; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-        .btn-option {
-            background-color: #000000;
-            color: #a3a3a3;
-            border: 1px solid #262626;
-        }
-        .btn-option:hover {
-            color: #ffffff;
-            border-color: #737373;
-        }
-        .btn-option.active {
-            background-color: #ffffff;
-            color: #000000;
-            border-color: #ffffff;
-        }
-        .twemoji {
-            display: inline-block;
-            vertical-align: middle;
-            pointer-events: none;
-        }
+      body {
+        background-color: #000000;
+        color: #ffffff;
+        font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        padding: 32px 20px;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      header {
+        width: 100%;
+        max-width: 440px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand img {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+      }
+
+      .brand h1 {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        text-transform: lowercase;
+      }
+
+      .status-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 9999px;
+        border: 1.5px solid #1a1a1a;
+        background: #0d0d0d;
+        font-size: 13px;
+        font-weight: 600;
+        color: #666666;
+        text-transform: lowercase;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #444444;
+        transition: background-color 0.3s ease;
+      }
+
+      .status-badge.active .status-dot {
+        background-color: #22c55e;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+      }
+
+      .status-badge.active {
+        color: #ffffff;
+        border-color: #333333;
+      }
+
+      main {
+        width: 100%;
+        max-width: 440px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 36px;
+        margin: auto 0;
+      }
+
+      .timer-display {
+        font-size: 84px;
+        font-weight: 800;
+        letter-spacing: -2px;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+
+      .action-controls {
+        display: flex;
+        gap: 16px;
+      }
+
+      .btn-icon {
+        background: #111111;
+        border: 1.5px solid #222222;
+        color: #ffffff;
+        width: 60px;
+        height: 60px;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-icon:hover {
+        background: #1a1a1a;
+        border-color: #333333;
+      }
+
+      .btn-icon:active {
+        transform: scale(0.94);
+      }
+
+      .preset-grid {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn-preset {
+        background: #0d0d0d;
+        border: 1.5px solid #1a1a1a;
+        color: #777777;
+        padding: 12px 20px;
+        border-radius: 9999px;
+        font-size: 14px;
+        font-weight: 700;
+        font-family: 'Montserrat', sans-serif;
+        cursor: pointer;
+        text-transform: lowercase;
+        transition: all 0.2s ease;
+      }
+
+      .btn-preset:hover {
+        color: #ffffff;
+        border-color: #333333;
+      }
+
+      .btn-preset.active {
+        background: #ffffff;
+        color: #000000;
+        border-color: #ffffff;
+      }
+
+      .custom-container {
+        width: 100%;
+        display: none;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .custom-container.open {
+        display: flex;
+      }
+
+      .custom-input {
+        background: #0d0d0d;
+        border: 1.5px solid #222222;
+        color: #ffffff;
+        padding: 12px 18px;
+        border-radius: 9999px;
+        font-size: 14px;
+        font-weight: 700;
+        font-family: 'Montserrat', sans-serif;
+        width: 130px;
+        outline: none;
+        text-align: center;
+      }
+
+      .custom-input:focus {
+        border-color: #444444;
+      }
+
+      .btn-set {
+        background: #ffffff;
+        color: #000000;
+        border: none;
+        padding: 12px 22px;
+        border-radius: 9999px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: 'Montserrat', sans-serif;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+
+      .btn-set:active {
+        transform: scale(0.95);
+      }
+
+      footer {
+        width: 100%;
+        max-width: 440px;
+        display: flex;
+        justify-content: center;
+        padding-top: 16px;
+      }
+
+      .btn-install {
+        background: transparent;
+        border: 1.5px dashed #222222;
+        color: #666666;
+        padding: 10px 20px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: 'Montserrat', sans-serif;
+        cursor: pointer;
+        display: none;
+        text-transform: lowercase;
+        transition: all 0.2s ease;
+      }
+
+      .btn-install:hover {
+        color: #ffffff;
+        border-color: #444444;
+      }
+
+      .btn-install.visible {
+        display: block;
+      }
+
+      #wakelock-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1px;
+        height: 1px;
+        opacity: 0.01;
+        pointer-events: none;
+      }
     </style>
-</head>
-<body class="h-full bg-black text-white font-mono flex flex-col justify-between items-center p-6">
+  </head>
+  <body>
+    <video id="wakelock-video" playsinline loop muted>
+      <source
+        src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAAYbWRhdGFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYAAAABx2aWRzY2FsbAAAAAB3aWRzY2FsbAAAAAA="
+        type="video/mp4"
+      />
+    </video>
 
-    <!-- Top Bar -->
-    <header class="w-full max-w-sm flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2615.svg" alt="coffee" class="twemoji w-6 h-6">
-            <span class="text-sm tracking-tight text-white font-bold">caffeinated</span>
-        </div>
-        
-        <div class="flex items-center gap-3">
-            <!-- PWA Install Button (Appears if installable) -->
-            <button id="installBtn" class="hidden text-xs bg-white text-black px-2.5 py-1 rounded hover:bg-neutral-200 transition-colors font-sans font-medium">
-                install
-            </button>
-
-            <!-- Screen Awake Status Indicator -->
-            <div class="flex items-center gap-1.5 text-xs text-neutral-400">
-                <img id="statusIcon" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2600.svg" alt="status" class="twemoji w-4 h-4 opacity-40 transition-opacity">
-                <span id="statusText">idle</span>
-            </div>
-        </div>
+    <header>
+      <div class="brand">
+        <img
+          id="header-logo"
+          src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2615.svg"
+          alt="coffee emoji"
+        />
+        <h1>caffeinated</h1>
+      </div>
+      <div class="status-badge" id="status-badge" role="button">
+        <div class="status-dot"></div>
+        <span id="status-text">paused</span>
+      </div>
     </header>
 
-    <!-- Main Section -->
-    <main class="w-full max-w-sm flex flex-col items-center my-auto py-8">
-        
-        <!-- Digital Timer Display -->
-        <div id="timerDisplay" class="text-7xl sm:text-8xl font-light tracking-tighter text-white mb-6">
-            ∞
-        </div>
+    <main>
+      <div class="timer-display" id="timer-display">∞</div>
 
-        <!-- Timer Controls: Play / Pause / Reset -->
-        <div class="flex items-center gap-4 mb-8">
-            <button id="playPauseBtn" title="toggle timer" class="w-14 h-14 rounded-full bg-white text-black hover:bg-neutral-200 flex items-center justify-center transition-transform active:scale-95">
-                <img id="playPauseImg" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/23f8.svg" alt="pause" class="twemoji w-6 h-6">
-            </button>
-            <button id="resetBtn" title="reset" class="w-14 h-14 rounded-full border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-500 flex items-center justify-center transition-transform active:scale-95">
-                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f504.svg" alt="reset" class="twemoji w-5 h-5">
-            </button>
-        </div>
+      <div class="action-controls">
+        <button class="btn-icon" id="btn-toggle" aria-label="Toggle Timer">
+          <i data-lucide="play"></i>
+        </button>
+        <button class="btn-icon" id="btn-reset" aria-label="Reset Timer">
+          <i data-lucide="rotate-ccw"></i>
+        </button>
+      </div>
 
-        <!-- Presets Row -->
-        <div class="w-full grid grid-cols-5 gap-2 text-xs mb-3">
-            <button data-mins="30" class="btn-option py-2.5 rounded-md transition-colors">30m</button>
-            <button data-mins="60" class="btn-option py-2.5 rounded-md transition-colors">1hr</button>
-            <button data-mins="120" class="btn-option py-2.5 rounded-md transition-colors">2hr</button>
-            <button id="customToggleBtn" class="btn-option py-2.5 rounded-md flex items-center justify-center gap-1 transition-colors">
-                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2699.svg" alt="custom" class="twemoji w-3.5 h-3.5">
-            </button>
-            <button data-mins="infinite" id="infiniteBtn" class="btn-option active py-2.5 rounded-md transition-colors">Inf</button>
-        </div>
+      <div class="preset-grid">
+        <button class="btn-preset active" data-mode="infinite">∞</button>
+        <button class="btn-preset" data-mode="30m">30m</button>
+        <button class="btn-preset" data-mode="1h">1h</button>
+        <button class="btn-preset" data-mode="2h">2h</button>
+        <button class="btn-preset" data-mode="custom">custom</button>
+      </div>
 
-        <!-- Inline Custom Minutes Input Bar -->
-        <div id="customInputBar" class="hidden w-full flex gap-2">
-            <input type="number" id="customMinsInput" min="1" max="1440" placeholder="enter minutes..." class="w-full px-3 py-2 bg-black border border-neutral-800 rounded-md text-white text-xs focus:outline-none focus:border-white">
-            <button id="setCustomBtn" class="px-4 py-2 bg-white text-black text-xs rounded-md hover:bg-neutral-200 transition-colors flex items-center justify-center">
-                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2714.svg" alt="confirm" class="twemoji w-3.5 h-3.5">
-            </button>
-        </div>
-
+      <div class="custom-container" id="custom-container">
+        <input
+          type="number"
+          id="custom-minutes"
+          class="custom-input"
+          placeholder="minutes"
+          min="1"
+          max="1440"
+        />
+        <button class="btn-set" id="btn-set-custom">set</button>
+      </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="text-[11px] text-neutral-600">
-        keeps screen awake while in foreground
+    <footer>
+      <button class="btn-install" id="btn-install">install app</button>
     </footer>
 
-    <!-- Service Worker Registration & PWA Logic -->
     <script>
-        // 1. Inline Service Worker Registration via Blob URL
-        if ('serviceWorker' in navigator) {
-            const swCode = `
-                const CACHE_NAME = 'caffeinated-v1';
-                self.addEventListener('install', (e) => {
-                    self.skipWaiting();
-                });
-                self.addEventListener('activate', (e) => {
-                    e.waitUntil(clients.claim());
-                });
-                self.addEventListener('fetch', (e) => {
-                    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-                });
-            `;
-            const blob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration error:', err));
+      // State
+      let wakeLock = null;
+      let mode = 'infinite';
+      let totalSeconds = 0;
+      let remainingSeconds = 0;
+      let isRunning = false;
+      let timerInterval = null;
+      let endTime = null;
+
+      // Elements
+      const statusBadge = document.getElementById('status-badge');
+      const statusText = document.getElementById('status-text');
+      const timerDisplay = document.getElementById('timer-display');
+      const btnToggle = document.getElementById('btn-toggle');
+      const btnReset = document.getElementById('btn-reset');
+      const presetButtons = document.querySelectorAll('.btn-preset');
+      const customContainer = document.getElementById('custom-container');
+      const customInput = document.getElementById('custom-minutes');
+      const btnSetCustom = document.getElementById('btn-set-custom');
+      const btnInstall = document.getElementById('btn-install');
+      const videoElem = document.getElementById('wakelock-video');
+
+      // Wake Lock Handler
+      async function requestWakeLock() {
+        if ('wakeLock' in navigator) {
+          try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            setAwakeUI(true);
+
+            wakeLock.addEventListener('release', () => {
+              if (isRunning) {
+                setAwakeUI(false);
+              }
             });
+          } catch (err) {
+            fallbackWakeLock();
+          }
+        } else {
+          fallbackWakeLock();
         }
+      }
 
-        // 2. Native PWA Install Prompt Handler
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.classList.remove('hidden');
-        });
-
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                installBtn.classList.add('hidden');
-            }
-            deferredPrompt = null;
-        });
-
-        window.addEventListener('appinstalled', () => {
-            installBtn.classList.add('hidden');
-            deferredPrompt = null;
-        });
-    </script>
-
-    <!-- Timer & Screen Wake Lock Logic Script -->
-    <script>
-        let wakeLock = null;
-        let timerInterval = null;
-        let remainingSeconds = 0;
-        let totalSeconds = 0;
-        let isRunning = false;
-        let isInfinite = true;
-
-        const TWEMOJI_PLAY = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/25b6.svg";
-        const TWEMOJI_PAUSE = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/23f8.svg";
-
-        const timerDisplay = document.getElementById('timerDisplay');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const playPauseImg = document.getElementById('playPauseImg');
-        const resetBtn = document.getElementById('resetBtn');
-        const statusIcon = document.getElementById('statusIcon');
-        const statusText = document.getElementById('statusText');
-        const optionBtns = document.querySelectorAll('.btn-option');
-        const customToggleBtn = document.getElementById('customToggleBtn');
-        const customInputBar = document.getElementById('customInputBar');
-        const customMinsInput = document.getElementById('customMinsInput');
-        const setCustomBtn = document.getElementById('setCustomBtn');
-
-        function updatePlayPauseIcon(playing) {
-            playPauseImg.src = playing ? TWEMOJI_PAUSE : TWEMOJI_PLAY;
-            playPauseImg.alt = playing ? "pause" : "play";
+      function fallbackWakeLock() {
+        if (videoElem) {
+          videoElem.play().then(() => setAwakeUI(true)).catch(() => setAwakeUI(false));
         }
+      }
 
-        async function requestWakeLock() {
-            if (!('wakeLock' in navigator)) {
-                statusText.textContent = 'unsupported';
-                return;
-            }
-            try {
-                wakeLock = await navigator.wakeLock.request('screen');
-                updateStatus(true);
-                wakeLock.addEventListener('release', () => updateStatus(false));
-            } catch (err) {
-                updateStatus(false);
-            }
+      function releaseWakeLock() {
+        if (wakeLock) {
+          wakeLock.release().catch(() => {});
+          wakeLock = null;
         }
-
-        async function releaseWakeLock() {
-            if (wakeLock) {
-                try {
-                    await wakeLock.release();
-                    wakeLock = null;
-                } catch (e) {}
-            }
-            updateStatus(false);
+        if (videoElem) {
+          videoElem.pause();
         }
+        setAwakeUI(false);
+      }
 
-        document.addEventListener('visibilitychange', async () => {
-            if (document.visibilityState === 'visible' && isRunning) {
-                await requestWakeLock();
-            }
-        });
-
-        function updateStatus(active) {
-            if (active) {
-                statusIcon.classList.remove('opacity-40');
-                statusIcon.classList.add('opacity-100');
-                statusText.textContent = 'awake';
-            } else {
-                statusIcon.classList.remove('opacity-100');
-                statusIcon.classList.add('opacity-40');
-                statusText.textContent = 'idle';
-            }
+      function setAwakeUI(active) {
+        if (active) {
+          statusBadge.classList.add('active');
+          statusText.textContent = 'awake';
+        } else {
+          statusBadge.classList.remove('active');
+          statusText.textContent = 'paused';
         }
+      }
 
-        function formatTime(secs) {
-            const h = Math.floor(secs / 3600);
-            const m = Math.floor((secs % 3600) / 60);
-            const s = secs % 60;
-            const pad = n => String(n).padStart(2, '0');
-            return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+      document.addEventListener('visibilitychange', async () => {
+        if (document.visibilityState === 'visible' && isRunning) {
+          await requestWakeLock();
         }
+      });
 
-        function updateDisplay() {
-            const formatted = isInfinite ? '∞' : formatTime(remainingSeconds);
-            timerDisplay.textContent = formatted;
-            document.title = isRunning ? `${formatted} - Caffeinated` : 'Caffeinated';
+      // Formatting Time
+      function formatTime(sec) {
+        if (mode === 'infinite') return '∞';
+        const hrs = Math.floor(sec / 3600);
+        const mins = Math.floor((sec % 3600) / 60);
+        const secs = sec % 60;
+
+        const pad = (n) => String(n).padStart(2, '0');
+        if (hrs > 0) {
+          return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
         }
+        return `${pad(mins)}:${pad(secs)}`;
+      }
 
-        function setActiveButton(targetBtn) {
-            optionBtns.forEach(b => b.classList.remove('active'));
-            if (targetBtn) targetBtn.classList.add('active');
+      // Update Display & Controls
+      function updateDisplay() {
+        timerDisplay.textContent = formatTime(remainingSeconds);
+        if (mode !== 'infinite' && isRunning) {
+          document.title = `${formatTime(remainingSeconds)} - caffeinated`;
+        } else {
+          document.title = 'caffeinated';
         }
+      }
 
-        function start() {
-            isRunning = true;
-            requestWakeLock();
-            updatePlayPauseIcon(true);
+      function updateControls() {
+        btnToggle.innerHTML = isRunning ? '<i data-lucide="pause"></i>' : '<i data-lucide="play"></i>';
+        lucide.createIcons();
+      }
 
-            if (!isInfinite) {
-                clearInterval(timerInterval);
-                timerInterval = setInterval(() => {
-                    if (remainingSeconds > 0) {
-                        remainingSeconds--;
-                        updateDisplay();
-                    } else {
-                        pause();
-                    }
-                }, 1000);
-            } else {
-                updateDisplay();
-            }
-        }
+      // Timer Logic
+      function startTimer() {
+        isRunning = true;
+        requestWakeLock();
+        updateControls();
 
-        function pause() {
-            isRunning = false;
-            clearInterval(timerInterval);
-            releaseWakeLock();
-            updatePlayPauseIcon(false);
+        if (mode !== 'infinite') {
+          if (!endTime || remainingSeconds <= 0) {
+            endTime = Date.now() + remainingSeconds * 1000;
+          }
+          clearInterval(timerInterval);
+
+          timerInterval = setInterval(() => {
+            const secondsLeft = Math.max(0, Math.round((endTime - Date.now()) / 1000));
+            remainingSeconds = secondsLeft;
             updateDisplay();
+
+            if (remainingSeconds <= 0) {
+              pauseTimer();
+            }
+          }, 200);
         }
+      }
 
-        function setTimer(minutes, targetBtn) {
-            customInputBar.classList.add('hidden');
-            if (minutes === 'infinite') {
-                isInfinite = true;
-                totalSeconds = 0;
-                remainingSeconds = 0;
-            } else {
-                isInfinite = false;
-                totalSeconds = minutes * 60;
-                remainingSeconds = totalSeconds;
-            }
-            setActiveButton(targetBtn);
-            updateDisplay();
-            start();
+      function pauseTimer() {
+        isRunning = false;
+        clearInterval(timerInterval);
+        releaseWakeLock();
+        updateControls();
+      }
+
+      // Event Listeners
+      btnToggle.addEventListener('click', () => {
+        if (isRunning) {
+          pauseTimer();
+        } else {
+          startTimer();
         }
+      });
 
-        optionBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (btn === customToggleBtn) {
-                    customInputBar.classList.toggle('hidden');
-                    if (!customInputBar.classList.contains('hidden')) {
-                        customMinsInput.focus();
-                    }
-                    return;
-                }
-                const mins = btn.getAttribute('data-mins');
-                setTimer(mins === 'infinite' ? 'infinite' : parseInt(mins, 10), btn);
-            });
+      statusBadge.addEventListener('click', () => {
+        if (isRunning) {
+          pauseTimer();
+        } else {
+          startTimer();
+        }
+      });
+
+      btnReset.addEventListener('click', () => {
+        pauseTimer();
+        remainingSeconds = totalSeconds;
+        endTime = totalSeconds > 0 ? Date.now() + totalSeconds * 1000 : null;
+        updateDisplay();
+      });
+
+      // Preset Buttons
+      presetButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          presetButtons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const selectedMode = btn.dataset.mode;
+          mode = selectedMode;
+          customContainer.classList.remove('open');
+
+          if (selectedMode === 'infinite') {
+            totalSeconds = 0;
+            remainingSeconds = 0;
+            endTime = null;
+          } else if (selectedMode === '30m') {
+            totalSeconds = 30 * 60;
+            remainingSeconds = totalSeconds;
+            endTime = Date.now() + totalSeconds * 1000;
+          } else if (selectedMode === '1h') {
+            totalSeconds = 60 * 60;
+            remainingSeconds = totalSeconds;
+            endTime = Date.now() + totalSeconds * 1000;
+          } else if (selectedMode === '2h') {
+            totalSeconds = 120 * 60;
+            remainingSeconds = totalSeconds;
+            endTime = Date.now() + totalSeconds * 1000;
+          } else if (selectedMode === 'custom') {
+            customContainer.classList.add('open');
+            pauseTimer();
+            return;
+          }
+
+          updateDisplay();
+          startTimer();
         });
+      });
 
-        setCustomBtn.addEventListener('click', () => {
-            const val = parseInt(customMinsInput.value, 10);
-            if (val && val > 0) {
-                setTimer(val, customToggleBtn);
-                customMinsInput.value = '';
-            }
-        });
+      // Custom Input Set Button
+      btnSetCustom.addEventListener('click', () => {
+        const val = parseInt(customInput.value, 10);
+        if (val && val > 0) {
+          totalSeconds = val * 60;
+          remainingSeconds = totalSeconds;
+          endTime = Date.now() + totalSeconds * 1000;
+          updateDisplay();
+          startTimer();
+        }
+      });
 
-        customMinsInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') setCustomBtn.click();
-        });
+      // PWA Prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        btnInstall.classList.add('visible');
+      });
 
-        playPauseBtn.addEventListener('click', () => {
-            if (isRunning) pause();
-            else start();
-        });
+      btnInstall.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            btnInstall.classList.remove('visible');
+          }
+          deferredPrompt = null;
+        }
+      });
 
-        resetBtn.addEventListener('click', () => {
-            if (isInfinite) {
-                start();
-            } else {
-                remainingSeconds = totalSeconds;
-                updateDisplay();
-                start();
-            }
-        });
-
-        start();
+      // Initialize Icons & Auto-start Infinite Mode on Load
+      lucide.createIcons();
+      updateDisplay();
+      startTimer();
     </script>
-</body>
+  </body>
 </html>
